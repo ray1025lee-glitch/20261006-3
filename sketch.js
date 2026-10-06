@@ -271,13 +271,13 @@ function updateLayout() {
   let canvasX = (windowWidth - canvasWidth) / 2;
   let canvasY = (windowHeight - canvasHeight) / 2 - 20;
 
-  let startY = 150; 
+  let startY = 200; 
   if (quizQuestions.length > 0 && currentQuestion < quizQuestions.length) {
     let q = quizQuestions[currentQuestion];
     let fontSize = isMobile ? 20 : 24;
     let approxRows = Math.ceil((q.prompt.length * fontSize) / (canvasWidth - 48));
     let promptHeight = approxRows * (fontSize + 6); 
-    startY = max(150, 50 + promptHeight + 10); // 間距已設為 10
+    startY = max(200, 50 + promptHeight + 10); // 間距已設為 10
   }
 
   // 設定 4 個選項按鈕的位置
