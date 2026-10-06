@@ -197,17 +197,15 @@ function drawScoreScreen() {
   textSize(isMobile ? 26 : 32);
   textStyle(BOLD);
   textAlign(CENTER, CENTER);
-  
-  // 1. 結算畫面文字（往上分散開，避免與按鈕重疊）
-  text("測驗結束！", width / 2, height / 2 - 90);
+  text("測驗結束！", width / 2, height / 2 - 80);
 
   textSize(isMobile ? 20 : 24);
   fill(129, 140, 248);
-  text(`你的總分：${Math.round(score)} / 100 分`, width / 2, height / 2 - 40);
+  text(`你的總分：${Math.round(score)} / 100 分`, width / 2, height / 2 - 25);
 
   fill(148, 163, 184);
   textSize(isMobile ? 14 : 16);
-  text("是否要重新測驗？", width / 2, height / 2 + 10);
+  text("是否要重新測驗？", width / 2, height / 2 + 25);
 }
 
 function createOptionButtons() {
@@ -232,7 +230,7 @@ function createOptionButtons() {
       if (!isAnswered) btn.style('background-color', '#334155');
     });
     btn.mouseOut(() => {
-      if (!isAnswered) btn.style('background-color', '#1e293b');
+      if (!isAnswer2ned) btn.style('background-color', '#1e293b');
     });
 
     optionButtons.push(btn);
@@ -257,7 +255,7 @@ function resetOptionButtonStyles() {
   }
 }
 
-// 自動適應手機、平板、電腦，並維持適當的安全間距
+// 自動適應與選項位置排版
 function updateLayout() {
   if (!canvas) return; 
 
@@ -268,18 +266,19 @@ function updateLayout() {
   let isMobile = canvasWidth < 480;
   let btnWidth = canvasWidth - 48;
   let btnHeight = isMobile ? 40 : 44;
-  let gap = isMobile ? 56 : 64; 
+  let gap = isMobile ? 48 : 52; 
 
   let canvasX = (windowWidth - canvasWidth) / 2;
   let canvasY = (windowHeight - canvasHeight) / 2 - 20;
 
+  // 【已調整】將安全起點設為 135px，確保絕對不會壓到題目文字
   let startY = 200; 
   if (quizQuestions.length > 0 && currentQuestion < quizQuestions.length) {
     let q = quizQuestions[currentQuestion];
     let fontSize = isMobile ? 20 : 24;
     let approxRows = Math.ceil((q.prompt.length * fontSize) / (canvasWidth - 48));
     let promptHeight = approxRows * (fontSize + 6); 
-    startY = max(200, 50 + promptHeight + 10); // 間距已設為 10
+    startY = max(200, 50 + promptHeight + 25); 
   }
 
   // 設定 4 個選項按鈕的位置
@@ -299,11 +298,14 @@ function updateLayout() {
     nextButton.style('font-size', isMobile ? '15px' : '16px');
   }
 
+  // 設定「重新測驗」按鈕位置
   if (restartButton) {
     let rBtnWidth = isMobile ? 160 : 200;
     let rBtnHeight = isMobile ? 44 : 50;
     restartButton.size(rBtnWidth, rBtnHeight);
-    restartButton.position(windowWidth / 2 - rBtnWidth / 2, canvasY + canvasHeight / 2 + 65);
+    
+    // 貼齊畫布底部上方 30px 的地方
+    restartButton.position(windowWidth / 2 - rBtnWidth / 2, canvasY + canvasHeight - rBtnHeight - 30);
     restartButton.style('font-size', isMobile ? '16px' : '18px');
   }
 
