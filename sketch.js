@@ -36,7 +36,7 @@ function preload() {
 
 function setup() {
   let canvasWidth = min(windowWidth - 40, 650);
-  let canvasHeight = min(windowHeight - 120, 520);
+  let canvasHeight = min(windowHeight - 120, 540);
   canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.parent("quiz-container");
  
@@ -107,7 +107,7 @@ function initQuiz() {
   if (quizQuestions.length > 0) {
     resetOptionButtonStyles();
     updateButtonText(0);
-    updateLayout(); // 確保抽完題後重新計算排版
+    updateLayout(); 
   }
 }
 
@@ -178,7 +178,7 @@ function drawQuizScreen() {
     textSize(isMobile ? 14 : 16);
     textStyle(BOLD);
     let labels = ["A", "B", "C", "D"];
-    let feedbackY = height - 55; // 放在按鈕下方、畫布底部上方
+    let feedbackY = height - 55; 
    
     if (selectedOption === q.correct) {
       fill(74, 222, 128);
@@ -245,7 +245,7 @@ function updateButtonText(qIndex) {
     optionButtons[i].html(`${labels[i]}: ${q.options[i]}`);
     optionButtons[i].show();
   }
-  updateLayout(); // 更新文字後自動重新計算版面
+  updateLayout(); 
 }
 
 function resetOptionButtonStyles() {
@@ -255,11 +255,10 @@ function resetOptionButtonStyles() {
   }
 }
 
-// 核心：自動適應手機、平板、電腦，並動態推開選項避免遮擋
+// 自動適應手機、平板、電腦，並維持適當的安全間距
 function updateLayout() {
-  if (!canvas) return; // 防呆機制
+  if (!canvas) return; 
 
-  // 根據視窗大小自動調整畫布尺寸（手機、平板、電腦共用一份彈性佈局）
   let canvasWidth = constrain(windowWidth - 40, 320, 650);
   let canvasHeight = constrain(windowHeight - 140, 480, 620);
   resizeCanvas(canvasWidth, canvasHeight);
@@ -267,20 +266,18 @@ function updateLayout() {
   let isMobile = canvasWidth < 480;
   let btnWidth = canvasWidth - 48;
   let btnHeight = isMobile ? 40 : 44;
-  let gap = isMobile ? 48 : 52; // 每個選項按鈕間距
+  let gap = isMobile ? 48 : 52; 
 
   let canvasX = (windowWidth - canvasWidth) / 2;
   let canvasY = (windowHeight - canvasHeight) / 2 - 20;
 
-  // 【關鍵修正】動態計算當前題目的實際高度，自動將選項往下推，絕對不遮擋！
-  let startY = isMobile ? 100 : 110;
+  let startY = 85; 
   if (quizQuestions.length > 0 && currentQuestion < quizQuestions.length) {
     let q = quizQuestions[currentQuestion];
     let fontSize = isMobile ? 20 : 24;
-    // 依據提示文字長度與畫布寬度估算換行行數
     let approxRows = Math.ceil((q.prompt.length * fontSize) / (canvasWidth - 48));
-    let promptHeight = max(35, approxRows * (fontSize + 6)); 
-    startY = 50 + promptHeight + 15; 
+    let promptHeight = approxRows * (fontSize + 6); 
+    startY = max(85, 50 + promptHeight + 10); // 間距已設為 10
   }
 
   // 設定 4 個選項按鈕的位置
@@ -315,7 +312,6 @@ function windowResized() {
 }
 
 function handleAnswer(choice) {
-  if (isAnswered || quizQuestions.length === 0) logicalCheck = true;
   if (isAnswered || quizQuestions.length === 0) return;
  
   isAnswered = true;
