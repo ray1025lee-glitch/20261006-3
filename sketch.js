@@ -277,7 +277,7 @@ function updateLayout() {
     let fontSize = isMobile ? 20 : 24;
     let approxRows = Math.ceil((q.prompt.length * fontSize) / (canvasWidth - 48));
     let promptHeight = approxRows * (fontSize + 6); 
-    startY = max(85, 50 + promptHeight + 10); // 間距已設為 10
+    startY = max(140, 50 + promptHeight + 10); // 間距已設為 10
   }
 
   // 設定 4 個選項按鈕的位置
