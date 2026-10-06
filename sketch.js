@@ -266,7 +266,7 @@ function updateLayout() {
   let isMobile = canvasWidth < 480;
   let btnWidth = canvasWidth - 48;
   let btnHeight = isMobile ? 40 : 44;
-  let gap = isMobile ? 48 : 52; 
+  let gap = isMobile ? 56 : 64; 
 
   let canvasX = (windowWidth - canvasWidth) / 2;
   let canvasY = (windowHeight - canvasHeight) / 2 - 20;
