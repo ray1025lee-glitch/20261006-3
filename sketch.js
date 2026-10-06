@@ -36,7 +36,7 @@ function preload() {
 
 function setup() {
   let canvasWidth = min(windowWidth - 40, 650);
-  let canvasHeight = min(windowHeight - 120, 540);
+  let canvasHeight = min(windowHeight - 120, 520);
   canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.parent("quiz-container");
  
@@ -107,7 +107,7 @@ function initQuiz() {
   if (quizQuestions.length > 0) {
     resetOptionButtonStyles();
     updateButtonText(0);
-    updateLayout(); 
+    updateLayout(); // 確保抽完題後重新計算排版
   }
 }
 
@@ -173,12 +173,12 @@ function drawQuizScreen() {
   textStyle(BOLD);
   text(q.prompt, 24, 50, width - 48);
 
-// 3. 答對/答錯回饋訊息
+  // 3. 答對/答錯回饋訊息
   if (isAnswered) {
     textSize(isMobile ? 14 : 16);
     textStyle(BOLD);
     let labels = ["A", "B", "C", "D"];
-    let feedbackY = height - 55; 
+    let feedbackY = height - 55; // 放在按鈕下方、畫布底部上方
    
     if (selectedOption === q.correct) {
       fill(74, 222, 128);
@@ -245,7 +245,7 @@ function updateButtonText(qIndex) {
     optionButtons[i].html(`${labels[i]}: ${q.options[i]}`);
     optionButtons[i].show();
   }
-  updateLayout(); 
+  updateLayout(); // 更新文字後自動重新計算版面
 }
 
 function resetOptionButtonStyles() {
@@ -255,10 +255,11 @@ function resetOptionButtonStyles() {
   }
 }
 
-// 自動適應手機、平板、電腦，並將四個選項往下推開
+// 核心：自動適應手機、平板、電腦，並動態推開選項避免遮擋
 function updateLayout() {
-  if (!canvas) return; 
+  if (!canvas) return; // 防呆機制
 
+  // 根據視窗大小自動調整畫布尺寸（手機、平板、電腦共用一份彈性佈局）
   let canvasWidth = constrain(windowWidth - 40, 320, 650);
   let canvasHeight = constrain(windowHeight - 140, 480, 620);
   resizeCanvas(canvasWidth, canvasHeight);
@@ -266,19 +267,20 @@ function updateLayout() {
   let isMobile = canvasWidth < 480;
   let btnWidth = canvasWidth - 48;
   let btnHeight = isMobile ? 40 : 44;
-  let gap = isMobile ? 48 : 52; 
+  let gap = isMobile ? 48 : 52; // 每個選項按鈕間距
 
   let canvasX = (windowWidth - canvasWidth) / 2;
   let canvasY = (windowHeight - canvasHeight) / 2 - 20;
 
-  // 【已調整】增加下方留白（從 15 增加到 35），讓四個選項整體往下移，不再遮擋題目
-  let startY = isMobile ? 120 : 130;
+  // 【關鍵修正】動態計算當前題目的實際高度，自動將選項往下推，絕對不遮擋！
+  let startY = isMobile ? 100 : 110;
   if (quizQuestions.length > 0 && currentQuestion < quizQuestions.length) {
     let q = quizQuestions[currentQuestion];
     let fontSize = isMobile ? 20 : 24;
+    // 依據提示文字長度與畫布寬度估算換行行數
     let approxRows = Math.ceil((q.prompt.length * fontSize) / (canvasWidth - 48));
     let promptHeight = max(35, approxRows * (fontSize + 6)); 
-    startY = 50 + promptHeight + 35; // 這裡加大間距
+    startY = 50 + promptHeight + 15; 
   }
 
   // 設定 4 個選項按鈕的位置
@@ -313,6 +315,7 @@ function windowResized() {
 }
 
 function handleAnswer(choice) {
+  if (isAnswered || quizQuestions.length === 0) logicalCheck = true;
   if (isAnswered || quizQuestions.length === 0) return;
  
   isAnswered = true;
