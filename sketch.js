@@ -173,7 +173,7 @@ function drawQuizScreen() {
   textStyle(BOLD);
   text(q.prompt, 24, 50, width - 48);
 
-  // 3. 答對/答錯回饋訊息
+// 3. 答對/答錯回饋訊息
   if (isAnswered) {
     textSize(isMobile ? 14 : 16);
     textStyle(BOLD);
@@ -184,4 +184,186 @@ function drawQuizScreen() {
       fill(74, 222, 128);
       text("✔ 答對了！", 24, feedbackY);
     } else {
-      fill(248, 113,
+      fill(248, 113, 113);
+      text(`✖ 答錯！正確答案是：${labels[q.correct]}: ${q.options[q.correct]}`, 24, feedbackY);
+    }
+  }
+}
+
+function drawScoreScreen() {
+  let isMobile = width < 480;
+
+  fill(255);
+  textSize(isMobile ? 26 : 32);
+  textStyle(BOLD);
+  textAlign(CENTER, CENTER);
+  text("測驗結束！", width / 2, height / 2 - 80);
+
+  textSize(isMobile ? 20 : 24);
+  fill(129, 140, 248);
+  text(`你的總分：${Math.round(score)} / 100 分`, width / 2, height / 2 - 25);
+
+  fill(148, 163, 184);
+  textSize(isMobile ? 14 : 16);
+  text("是否要重新測驗？", width / 2, height / 2 + 25);
+}
+
+function createOptionButtons() {
+  let labels = ["A", "B", "C", "D"];
+
+  for (let i = 0; i < 4; i++) {
+    let btn = createButton(`${labels[i]}: `);
+    btn.style('background-color', '#1e293b');
+    btn.style('color', '#f8fafc');
+    btn.style('border', '2px solid #334155');
+    btn.style('border-radius', '10px');
+    btn.style('font-family', '"Noto Serif TC", serif');
+    btn.style('font-weight', '600');
+    btn.style('cursor', 'pointer');
+    btn.style('text-align', 'left');
+    btn.hide();
+   
+    let index = i;
+    btn.mousePressed(() => handleAnswer(index));
+   
+    btn.mouseOver(() => {
+      if (!isAnswered) btn.style('background-color', '#334155');
+    });
+    btn.mouseOut(() => {
+      if (!isAnswered) btn.style('background-color', '#1e293b');
+    });
+
+    optionButtons.push(btn);
+  }
+}
+
+function updateButtonText(qIndex) {
+  if (quizQuestions.length === 0 || !quizQuestions[qIndex]) return;
+  let q = quizQuestions[qIndex];
+  let labels = ["A", "B", "C", "D"];
+  for (let i = 0; i < optionButtons.length; i++) {
+    optionButtons[i].html(`${labels[i]}: ${q.options[i]}`);
+    optionButtons[i].show();
+  }
+  updateLayout(); 
+}
+
+function resetOptionButtonStyles() {
+  for (let btn of optionButtons) {
+    btn.style('background-color', '#1e293b');
+    btn.style('border', '2px solid #334155');
+  }
+}
+
+// 自動適應手機、平板、電腦，並將四個選項往下推開
+function updateLayout() {
+  if (!canvas) return; 
+
+  let canvasWidth = constrain(windowWidth - 40, 320, 650);
+  let canvasHeight = constrain(windowHeight - 140, 480, 620);
+  resizeCanvas(canvasWidth, canvasHeight);
+
+  let isMobile = canvasWidth < 480;
+  let btnWidth = canvasWidth - 48;
+  let btnHeight = isMobile ? 40 : 44;
+  let gap = isMobile ? 48 : 52; 
+
+  let canvasX = (windowWidth - canvasWidth) / 2;
+  let canvasY = (windowHeight - canvasHeight) / 2 - 20;
+
+  // 【已調整】增加下方留白（從 15 增加到 35），讓四個選項整體往下移，不再遮擋題目
+  let startY = isMobile ? 120 : 130;
+  if (quizQuestions.length > 0 && currentQuestion < quizQuestions.length) {
+    let q = quizQuestions[currentQuestion];
+    let fontSize = isMobile ? 20 : 24;
+    let approxRows = Math.ceil((q.prompt.length * fontSize) / (canvasWidth - 48));
+    let promptHeight = max(35, approxRows * (fontSize + 6)); 
+    startY = 50 + promptHeight + 35; // 這裡加大間距
+  }
+
+  // 設定 4 個選項按鈕的位置
+  for (let i = 0; i < optionButtons.length; i++) {
+    optionButtons[i].size(btnWidth, btnHeight);
+    optionButtons[i].position(canvasX + 24, canvasY + startY + (i * gap));
+    optionButtons[i].style('font-size', isMobile ? '14px' : '15px');
+    optionButtons[i].style('padding-left', isMobile ? '12px' : '16px');
+  }
+
+  // 設定「下一題」按鈕位置
+  if (nextButton) {
+    let nBtnWidth = isMobile ? canvasWidth - 48 : 200;
+    let nBtnHeight = isMobile ? 42 : 46;
+    nextButton.size(nBtnWidth, nBtnHeight);
+    nextButton.position(canvasX + 24, canvasY + canvasHeight - 50);
+    nextButton.style('font-size', isMobile ? '15px' : '16px');
+  }
+
+  // 設定「重新測驗」按鈕位置
+  if (restartButton) {
+    let rBtnWidth = isMobile ? 160 : 200;
+    let rBtnHeight = isMobile ? 44 : 50;
+    restartButton.size(rBtnWidth, rBtnHeight);
+    restartButton.position(windowWidth / 2 - rBtnWidth / 2, canvasY + canvasHeight / 2 + 50);
+    restartButton.style('font-size', isMobile ? '16px' : '18px');
+  }
+}
+
+function windowResized() {
+  updateLayout();
+}
+
+function handleAnswer(choice) {
+  if (isAnswered || quizQuestions.length === 0) return;
+ 
+  isAnswered = true;
+  selectedOption = choice;
+  let q = quizQuestions[currentQuestion];
+
+  let pointsPerQuestion = 100 / quizQuestions.length;
+  if (choice === q.correct) {
+    score += pointsPerQuestion;
+    optionButtons[choice].style('background-color', '#166534');
+    optionButtons[choice].style('border', '2px solid #4ade80');
+  } else {
+    optionButtons[choice].style('background-color', '#991b1b');
+    optionButtons[choice].style('border', '2px solid #f87171');
+   
+    optionButtons[q.correct].style('background-color', '#166534');
+    optionButtons[q.correct].style('border', '2px solid #4ade80');
+  }
+
+  nextButton.show();
+}
+
+function goToNextQuestion() {
+  currentQuestion++;
+  isAnswered = false;
+  selectedOption = null;
+  nextButton.hide();
+  resetOptionButtonStyles();
+
+  if (currentQuestion < quizQuestions.length) {
+    updateButtonText(currentQuestion);
+  }
+}
+
+function restartQuiz() {
+  isLoading = true;
+  errorMessage = "";
+  loadTable(sheetCSVUrl, 'csv', 'header', 
+    (table) => {
+      allQuestions = table;
+      isLoading = false;
+      initQuiz();
+      nextButton.hide();
+      restartButton.hide();
+      resetOptionButtonStyles();
+      updateLayout();
+    }, 
+    (err) => {
+      isLoading = false;
+      errorMessage = "重新載入 Google 試算表失敗！";
+      console.error("重新載入失敗：", err);
+    }
+  );
+}
