@@ -197,15 +197,17 @@ function drawScoreScreen() {
   textSize(isMobile ? 26 : 32);
   textStyle(BOLD);
   textAlign(CENTER, CENTER);
-  text("測驗結束！", width / 2, height / 2 - 80);
+  
+  // 1. 結算畫面文字（往上分散開，避免與按鈕重疊）
+  text("測驗結束！", width / 2, height / 2 - 90);
 
   textSize(isMobile ? 20 : 24);
   fill(129, 140, 248);
-  text(`你的總分：${Math.round(score)} / 100 分`, width / 2, height / 2 - 25);
+  text(`你的總分：${Math.round(score)} / 100 分`, width / 2, height / 2 - 40);
 
   fill(148, 163, 184);
   textSize(isMobile ? 14 : 16);
-  text("是否要重新測驗？", width / 2, height / 2 + 25);
+  text("是否要重新測驗？", width / 2, height / 2 + 10);
 }
 
 function createOptionButtons() {
@@ -297,15 +299,13 @@ function updateLayout() {
     nextButton.style('font-size', isMobile ? '15px' : '16px');
   }
 
-  // 設定「重新測驗」按鈕位置
   if (restartButton) {
     let rBtnWidth = isMobile ? 160 : 200;
     let rBtnHeight = isMobile ? 44 : 50;
     restartButton.size(rBtnWidth, rBtnHeight);
-    restartButton.position(windowWidth / 2 - rBtnWidth / 2, canvasY + canvasHeight / 2 + 50);
+    restartButton.position(windowWidth / 2 - rBtnWidth / 2, canvasY + canvasHeight / 2 + 65);
     restartButton.style('font-size', isMobile ? '16px' : '18px');
   }
-}
 
 function windowResized() {
   updateLayout();
